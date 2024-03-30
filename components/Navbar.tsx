@@ -22,7 +22,6 @@ const Navbar = () => {
             <SignedIn>
                 <UserButton/>
             </SignedIn>
-            <Signe
             <MobileNav/>
         </div>
     </nav>
