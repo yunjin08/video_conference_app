@@ -1,5 +1,14 @@
 import StreamVideoProvider from "@/providers/StreamClientProvider";
 import React, { ReactNode } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Joom",
+  description: "Video Calling App",
+  icons: {
+    icon: "/icons/logo.svg",
+  },
+};
 
 const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
