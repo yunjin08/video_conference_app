@@ -1,8 +1,13 @@
 import { sql } from "@vercel/postgres";
 import { NextResponse } from "next/server";
+import { NextApiRequest } from "next";
 
-export async function GET(request) {
-    const { searchParams } = new URL(request.url);
+export async function GET(request: NextApiRequest) {
+    if (!request.url) {
+        throw new Error('Request URL is undefined');
+      }
+    
+      const { searchParams } = new URL(request.url);
     const meeting_id = searchParams.get("meeting_id");
     const user_id = searchParams.get("user_id");
     const start_time = searchParams.get("start_time");
