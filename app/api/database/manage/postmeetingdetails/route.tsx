@@ -2,7 +2,7 @@ import { sql } from "@vercel/postgres";
 import { NextResponse } from "next/server";
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-export async function handler(request: NextApiRequest, response: NextApiResponse) {
+export default async function meetingDetails(request: NextApiRequest, response: NextApiResponse) {
     if (!request.url) {
         throw new Error('Request URL is undefined');
       }
