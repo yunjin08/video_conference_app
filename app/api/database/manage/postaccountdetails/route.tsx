@@ -1,7 +1,7 @@
 import { sql } from "@vercel/postgres";
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function accountDetails(req: NextApiRequest, res: NextApiResponse) {
+export default async function (req: NextApiRequest, res: NextApiResponse) {
     if (!req.url) {
         return res.status(400).json({ error: 'Request URL is undefined' });
     }
