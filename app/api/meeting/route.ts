@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 export const POST = async (request) =>  {
     if (request.method === 'POST') {
       const { callId , callOwner, startTime, endTime, duration, userParticipant, numOfParticipants } = await request.json();
-      console.log(request , "HIIIIIII")
       try {
         const newMeeting = await prisma.MeetingDetails.create({
           data: {

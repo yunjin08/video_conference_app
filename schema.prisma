@@ -14,12 +14,13 @@ model Account {
   user_id      String   @id
   first_name   String
   last_name    String
-  image        String
-  email        String
+  image        String?
+  email        String?
   account_type String
   created_at   DateTime
   updated_at    DateTime
   meetings     MeetingDetails[] @relation("AccountMeetings")
+  recordings   Recordings[]
 }
 
 model MeetingDetails {
@@ -31,13 +32,16 @@ model MeetingDetails {
   participants String[]
   num_of_participants   Int @default(0)
   creator      Account  @relation(fields: [creator_user_id], references: [user_id], name: "AccountMeetings")
+  recordings         Recordings[] // Add this line for back-reference
 }
 
 model Recordings {
-  recording_id String   @id
-  user_id      String
+  filename String   @id
+  user_id  String 
   meeting_id   String
   recording_url String
+  meeting        MeetingDetails? @relation(fields: [meeting_id], references: [meeting_id]) // Establish the relation
+  account      Account         @relation(fields: [user_id], references: [user_id])
 }
 
 model UpcomingMeeting {
