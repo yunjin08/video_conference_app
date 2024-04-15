@@ -21,6 +21,7 @@ model Account {
   updated_at    DateTime
   meetings     MeetingDetails[] @relation("AccountMeetings")
   recordings   Recordings[]
+  upcoming_meeting UpcomingMeeting[]
 }
 
 model MeetingDetails {
@@ -48,4 +49,7 @@ model UpcomingMeeting {
   upcoming_meeting_id String @id
   user_id             String
   meeting_time        DateTime
+  meeting_description String
+  meeting_url         String 
+  account      Account         @relation(fields: [user_id], references: [user_id])
 }

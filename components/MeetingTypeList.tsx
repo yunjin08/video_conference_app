@@ -4,6 +4,7 @@ import HomeCard from "./HomeCard";
 import { useRouter } from "next/navigation";
 import MeetingModal from "./MeetingModal";
 import { useUser } from "@clerk/nextjs";
+import { useGetCalls } from "@/hooks/useGetCalls";
 import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "./ui/textarea";
@@ -16,8 +17,17 @@ const initialValues = {
   link: "",
 };
 
+interface UpcomingCall {
+  upcoming_meeting_id: string;
+  user_id: string;
+  meeting_time: string;
+  meeting_description: string;
+  meeting_url: string;
+}
+
 const MeetingTypeList = () => {
   const router = useRouter();
+  const { upcomingCalls  } = useGetCalls();
   const [meetingState, setMeetingState] = useState<
     "isScheduleMeeting" | "isJoiningMeeting" | "isInstantMeeting" | undefined
   >(undefined);
@@ -54,13 +64,42 @@ const MeetingTypeList = () => {
         },
       });
 
-      setCallDetails(call);
+      let UpcomingCalls: UpcomingCall[] = [];
 
-      if (!values.description) {
-        router.push(`/meeting/${call.id}`);
+      if(upcomingCalls) {
+        console.log(upcomingCalls)
+        const upcoming_meeting_id = upcomingCalls[0].id
+        const user_id = call.currentUserId || ''
+        const meeting_time =  startsAt
+        const meeting_description = description
+        const meeting_url = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${upcomingCalls[0].id}`
+        UpcomingCalls.push({upcoming_meeting_id, user_id, meeting_time, meeting_description, meeting_url})
+      } 
+
+      try {
+        console.log(UpcomingCalls)
+        const response = await fetch('/api/upcoming', {
+          method: 'POST',
+          body: JSON.stringify(UpcomingCalls)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create new meeting ');
+        }
+        const result = await response.json();
+        console.log(result)
+        console.log(UpcomingCalls, "upcoming", "here");
+        setCallDetails(call);
+
+        if (!values.description) {
+          router.push(`/meeting/${call.id}`);
+        }
+  
+        toast({ title: "Meeting Created" });
+      } catch (error) {
+        console.error('Error creating meeting:', error);
+        // Handle errors here, e.g. display error messages
       }
-
-      toast({ title: "Meeting Created" });
     } catch (error) {
       console.log(error);
       toast({

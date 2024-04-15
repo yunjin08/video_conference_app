@@ -10,7 +10,6 @@ const apiSecret = process.env.STREAM_SECRET_KEY;
 
 
 export const tokenProvider = async () => {
-  console.log("Prisma client is initialized:", !!prisma);
   const user = await currentUser();
 
   if (!user) throw new Error("User is not logged in");

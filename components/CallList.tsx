@@ -1,7 +1,6 @@
 "use client";
 
 import { Call, CallRecording, CallRecordingList} from "@stream-io/video-react-sdk";
-
 import Loader from "./Loader";
 import { useGetCalls } from "@/hooks/useGetCalls";
 import MeetingCard from "./MeetingCard";
@@ -26,6 +25,8 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
         return [];
     }
   };
+
+  console.log(upcomingCalls)
 
   function extractMeetingId(filename: string) {
     // Remove the prefix 'rec_default_' and the '.mp4' extension
@@ -98,6 +99,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   if (isLoading) return <Loader />;
 
   const calls = getCalls();
+
   const noCallsMessage = getNoCallsMessage();
 
   return (
