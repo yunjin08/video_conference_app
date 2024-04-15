@@ -1,0 +1,55 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Account {
+  user_id      String   @id
+  first_name   String
+  last_name    String
+  image        String?
+  email        String?
+  account_type String
+  created_at   DateTime
+  updated_at    DateTime
+  meetings     MeetingDetails[] @relation("AccountMeetings")
+  recordings   Recordings[]
+  upcoming_meeting UpcomingMeeting[]
+}
+
+model MeetingDetails {
+  meeting_id   String   @id
+  creator_user_id      String
+  start_time   DateTime
+  end_time     DateTime
+  duration     String 
+  participants String[]
+  num_of_participants   Int @default(0)
+  creator      Account  @relation(fields: [creator_user_id], references: [user_id], name: "AccountMeetings")
+  recordings         Recordings[] // Add this line for back-reference
+}
+
+model Recordings {
+  filename String   @id
+  user_id  String 
+  meeting_id   String
+  recording_url String
+  meeting        MeetingDetails? @relation(fields: [meeting_id], references: [meeting_id]) // Establish the relation
+  account      Account         @relation(fields: [user_id], references: [user_id])
+}
+
+model UpcomingMeeting {
+  upcoming_meeting_id String @id
+  user_id             String
+  meeting_time        DateTime
+  meeting_description String
+  meeting_url         String 
+  account      Account         @relation(fields: [user_id], references: [user_id])
+}

@@ -1,4 +1,4 @@
-import { useCall, useCallStateHooks } from "@stream-io/video-react-sdk";
+import { Call, StreamCall, useCall, useCallStateHooks,} from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { Button } from "./ui/button";
@@ -6,8 +6,11 @@ import { Button } from "./ui/button";
 function EndCallButton() {
   const call = useCall();
   const router = useRouter();
-  const { useLocalParticipant } = useCallStateHooks();
+  const { useLocalParticipant, useParticipants, useCallStartedAt, useParticipantCount } = useCallStateHooks();
+  const participants = useParticipants();
   const localParticipant = useLocalParticipant();
+  const startTime = useCallStartedAt()
+  const numOfParticipants = useParticipantCount();
 
   const isMeetingOwner =
     localParticipant &&
@@ -16,9 +19,38 @@ function EndCallButton() {
 
   if (!isMeetingOwner) return null;
 
+
+  
+
   const endCall = async () => {
-    await call.endCall();
-    router.push("/");
+    let userParticipant = []
+    participants.forEach((user) => userParticipant.push(user.userId));
+
+    const endTime = new Date();
+    const callId = call?.id
+    const callOwner = call?.state?.createdBy?.id
+    const duration = (((endTime - new Date(startTime)) / 1000) / 60).toFixed(2); ;
+    const userData = {callId , callOwner, startTime, endTime, duration, userParticipant, numOfParticipants};
+
+    try {
+        const response = await fetch('/api/meeting', {
+          method: 'POST',
+          body: JSON.stringify(userData)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create meeting details');
+        }
+
+        const result = await response.json();
+        console.log('Meeting added:', result);
+        await call.endCall();
+        router.push("/");
+        // Handle success here, e.g. display a message, redirect, etc.
+      } catch (error) {
+        console.error('Error creating meeting data:', error);
+        // Handle errors here, e.g. display error messages
+      }
   };
 
   return (
