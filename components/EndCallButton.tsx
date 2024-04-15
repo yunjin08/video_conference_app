@@ -23,13 +23,18 @@ function EndCallButton() {
   
 
   const endCall = async () => {
-    let userParticipant = []
+    let userParticipant: string[] = [];
     participants.forEach((user) => userParticipant.push(user.userId));
 
+    if (!startTime) {
+      console.error("Start time is undefined.");
+      return; // Return or handle the error condition appropriately
+  }
+  
     const endTime = new Date();
     const callId = call?.id
     const callOwner = call?.state?.createdBy?.id
-    const duration = (((endTime - new Date(startTime)) / 1000) / 60).toFixed(2); ;
+    const duration = (((endTime.getTime() - new Date(startTime).getTime()) / 1000) / 60).toFixed(2);
     const userData = {callId , callOwner, startTime, endTime, duration, userParticipant, numOfParticipants};
 
     try {

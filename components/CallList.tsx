@@ -7,6 +7,13 @@ import MeetingCard from "./MeetingCard";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface Recording {
+  filename: string;
+  user_id: string;
+  meeting_id: string;
+  recording_url: string;
+}
+
 const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   const router = useRouter();
   const { endedCalls, upcomingCalls, callRecordings, isLoading  } =
@@ -53,9 +60,15 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   };
 
   useEffect(() => {
-    let newRecording = []
+    let newRecording: Recording[] = [];
     
     const fetchRecordings = async () => {
+
+      if (!callRecordings || callRecordings.length === 0) {
+        console.log('No call recordings available.');
+        return;
+    }
+
       const callData = await Promise.all(
         callRecordings?.map((meeting) => meeting.queryRecordings()) ?? []
       );
@@ -66,7 +79,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
 
       recordings.forEach((records)=> {
         const meeting_id = extractMeetingId(records.filename)
-        const user_id = callRecordings[0].currentUserId
+        const user_id = callRecordings[0].currentUserId || ''
         const filename = records.filename
         const recording_url = records.url;
         newRecording.push({filename, user_id, meeting_id, recording_url})
