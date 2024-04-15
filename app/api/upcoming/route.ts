@@ -2,22 +2,26 @@ import prisma from "@/lib/prisma";
 
 export const POST = async (request) =>  {
     if (request.method === 'POST') {
-      const upcoming = await request.json();
-
       try {
-        const results = await Promise.all(upcoming.map(async recording => {
-            return prisma.UpcomingMeeting.create({
-              data: {
-                upcoming_meeting_id: recording.upcoming_meeting_id,
-                user_id: recording.user_id,
-                meeting_time: recording.meeting_time,
-                meeting_description: recording.meeting_description,
-                meeting_url: recording.meeting_url
-              }
-            });
-
-        }));
-        return new Response(JSON.stringify(results), { status: 201 }); // Return all new recordings and skipped logs
+        const upcoming = await request.json();
+        console.log(upcoming, 'upcomings')
+        for (const call of upcoming) {
+          const existingUpcoming = await prisma.UpcomingMeeting.findUnique({
+              where: { upcoming_meeting_id: call.upcoming_meeting_id }
+          });
+          if (!existingUpcoming) {
+              await prisma.UpcomingMeeting.create({
+                  data: {
+                      upcoming_meeting_id: call.upcoming_meeting_id,
+                      user_id: call.user_id,
+                      meeting_time: call.meeting_time,
+                      meeting_description: call.meeting_description,
+                      meeting_url: call.meeting_url
+                  }
+              });
+            }
+        }
+        return new Response("Meetings successfully added or updated", { status: 200 });
       } catch (error) {
         console.error('Error creating or adding meetings:', error);
         return new Response("Failed to add meetings", { status: 500 });
