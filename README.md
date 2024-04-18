@@ -22,7 +22,7 @@ Install Node:
 
 Setting up:
 
-1. Change director to the video-conference app.
+1. Change directory to the video-conference app.
 2. In the root folder, type 'npm install'
 3. After, type 'npm i -g vercel@latest', then 'vercel link' in the cmd to connect to vercel postgresql database
 4. Try running 'npx prisma studio'
