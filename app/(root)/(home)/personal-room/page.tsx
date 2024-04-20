@@ -4,31 +4,11 @@ import { useUser } from "@clerk/nextjs";
 import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
 import MeetingModal from "@/components/MeetingModal";
-import { useGetCallById } from "@/hooks/useGetCallById";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import MeetingCard from "@/components/MeetingCard";
-
-const Table = ({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) => {
-  return (
-    <div className="flex flex-col items-start gap-2 xl:flex-row">
-      <h1 className="text-base font-medium text-sky-1 lg:text-xl xl:min-w-32">
-        {title}:
-      </h1>
-      <h1 className="truncate text-sm font-bold max-sm:max-w-[320px] lg:text-xl">
-        {description}
-      </h1>
-    </div>
-  );
-};
 
 const initialValues = {
   title: "",
@@ -60,11 +40,17 @@ const PersonalRoom = () => {
   const { toast } = useToast();
   const [values, setValues] = useState(initialValues);
   const [createRoom, setCreateRoom] = useState(false);
+  const [joinRoom, setJoinRoom] = useState(false);
+  const [roomId, setRoomId] = useState("");
   const [callDetails, setCallDetails] = useState<Call>();
   const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]);
 
   const showCreateRoom = () => {
     setCreateRoom(true);
+  };
+
+  const setJoiningRoom = () => {
+    setJoinRoom(true);
   };
 
   const createMeetingRoom = async () => {
@@ -136,6 +122,21 @@ const PersonalRoom = () => {
     }
   };
 
+  const joinMeetingRoom = async () => {
+    try {
+      console.log(roomId, "roomId");
+      const response = await fetch(`/api/meetingRoom/${roomId}/${user?.id}`, {
+        method: "PATCH",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to join in a room");
+      }
+    } catch (error) {
+      console.error("Error fetching meeting data:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -191,21 +192,32 @@ const PersonalRoom = () => {
           </div>
         </MeetingModal>
       )}
+      {/* Modal for showing joining Room */}
+      {joinRoom && (
+        <MeetingModal
+          isOpen={joinRoom}
+          onClose={() => setJoinRoom(false)}
+          title="Join a Meeting Room"
+          handleClick={joinMeetingRoom}
+        >
+          <div className="flex flex-col gap-2.5">
+            <label className="text-base font-normal leading-[22.4px] text-sky-2">
+              Enter room id:
+            </label>
+            <Textarea
+              className="border-none bg-dark-3 focus-visible:ring-0 focus-visible:ring-offset-0"
+              onChange={(e) => setRoomId(e.target.value)}
+            />
+          </div>
+        </MeetingModal>
+      )}
       <section className="flex size-full flex-col gap-10 text-white">
         <h1 className="text-xl font-bold lg:text-3xl">Personal Meeting Room</h1>
         <div className="flex gap-5">
           <Button className="bg-blue-1" onClick={showCreateRoom}>
             Create a Room Meeting
           </Button>
-          <Button
-            className="bg-dark-3"
-            onClick={() => {
-              navigator.clipboard.writeText(meetingLink);
-              toast({
-                title: "Link Copied",
-              });
-            }}
-          >
+          <Button className="bg-dark-3" onClick={setJoiningRoom}>
             Join a Room Meeting
           </Button>
         </div>
