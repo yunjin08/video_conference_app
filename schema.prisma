@@ -22,6 +22,7 @@ model Account {
   meetings     MeetingDetails[] @relation("AccountMeetings")
   recordings   Recordings[]
   upcoming_meeting UpcomingMeeting[]
+  meeting_rooms     MeetingRooms[]
 }
 
 model MeetingDetails {
@@ -52,4 +53,15 @@ model UpcomingMeeting {
   meeting_description String
   meeting_url         String 
   account      Account         @relation(fields: [user_id], references: [user_id])
+}
+
+model MeetingRooms { 
+  room_meeting        String @id
+  user_id_creator     String
+  meeting_title       String 
+  meeting_description String
+  meeting_url         String 
+  participants        String[]
+  creator      Account  @relation(fields: [user_id_creator], references: [user_id])
+
 }
