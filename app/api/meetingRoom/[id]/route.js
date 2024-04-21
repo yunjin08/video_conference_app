@@ -7,8 +7,11 @@ export const GET = async (request, { params }) => {
         where: {
           user_id_creator: params.id, // Filter by the user ID
         },
+        include: {
+          creator: true,
+        },
       });
-
+      console.log(MeetingRooms);
       return new Response(JSON.stringify(MeetingRooms), {
         status: 200,
         headers: { "Content-Type": "application/json" },

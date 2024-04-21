@@ -3,16 +3,14 @@ import prisma from "@/lib/prisma";
 export const PATCH = async (request, { params }) => {
   if (request.method === "PATCH") {
     try {
-      // Fetch the existing meeting room data
       const existingMeetingRoom = await prisma.MeetingRooms.findUnique({
         where: { room_meeting: params.id },
         include: { room_members: true }, // Include the existing participants
       });
 
-      // Extract the existing participants from the fetched data
-      const existingParticipants = existingMeetingRoom?.room_members || [];
+      const existingParticipants =
+        existingMeetingRoom?.room_members.map((member) => member.user_id) || [];
 
-      // Combine the existing participants with the new ones
       console.log(params.user);
       const allParticipants = [...existingParticipants, params.user];
 
