@@ -64,7 +64,7 @@ const MeetingCard = ({
   return (
     <section className="flex relative min-h-[258px] w-full flex-col justify-between rounded-[14px] bg-dark-1 px-5 py-8 xl:max-w-[568px]">
       <Image
-        src={ownerImg || "/images/avatar-1.jpeg"}
+        src={ownerImg || ""}
         alt="attendees"
         width={40}
         height={40}

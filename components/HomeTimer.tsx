@@ -2,11 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
+import { useUser } from "@clerk/nextjs";
+
 function HomeTimer() {
   const [upcomingTime, setUpcomingTime] = useState("");
   const [remainingDays, setRemainingDays] = useState(0);
   const [remainingHours, setRemainingHours] = useState(0);
   const [remainingMinute, setRemainingMinute] = useState(0);
+  const { user } = useUser();
 
   const now = useMemo(() => new Date(), []);
   const time = now.toLocaleTimeString("en-US", {
@@ -39,7 +42,7 @@ function HomeTimer() {
     }
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/upcoming", {
+        const response = await fetch(`/api/upcoming/${user?.id}`, {
           method: "GET",
         });
 

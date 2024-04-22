@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 
-export const POST = async (request) => {
+export const POST = async (request, { params }) => {
   if (request.method === "POST") {
     try {
       const upcoming = await request.json();
@@ -26,32 +26,6 @@ export const POST = async (request) => {
     } catch (error) {
       console.error("Error creating or adding meetings:", error);
       return new Response("Failed to add meetings", { status: 500 });
-    }
-  }
-};
-
-export const GET = async (request) => {
-  if (request.method === "GET") {
-    try {
-      const now = new Date();
-      const upcomingMeeting = await prisma.UpcomingMeeting.findFirst({
-        where: {
-          meeting_time: {
-            gt: now, // greater than the current time
-          },
-        },
-        orderBy: {
-          meeting_time: "asc", // ensures the closest future meeting is selected
-        },
-      });
-
-      return new Response(JSON.stringify(upcomingMeeting), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      console.error("Error reading the database:", error);
-      return new Response("Error reading the database", { status: 500 });
     }
   }
 };
