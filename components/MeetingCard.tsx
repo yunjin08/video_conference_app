@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-
+import React, { Dispatch, SetStateAction } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { avatarImages } from "@/constants";
@@ -10,13 +10,30 @@ import { useToast } from "./ui/use-toast";
 interface MeetingCardProps {
   title: string;
   date: string;
+  setMembers: Dispatch<SetStateAction<Creator[]>>;
   icon: string;
   isPreviousMeeting?: boolean;
   buttonIcon1?: string;
+  setRoomOwner: Dispatch<SetStateAction<string>>;
   buttonText?: string;
+  setShowMembers: Dispatch<SetStateAction<boolean>>;
+  images: Creator[];
+  owner?: string;
+  setRoomNumber: Dispatch<SetStateAction<string>>;
   ownerImg?: string;
   handleClick: () => void;
   link: string;
+}
+
+interface Creator {
+  user_id: string;
+  first_name: String;
+  last_name: String;
+  image: string;
+  email: String;
+  account_type: String;
+  created_at: Date;
+  updated_at: Date;
 }
 
 const MeetingCard = ({
@@ -24,14 +41,26 @@ const MeetingCard = ({
   title,
   date,
   ownerImg,
+  setMembers,
+  setRoomOwner,
+  owner,
   isPreviousMeeting,
   buttonIcon1,
+  setShowMembers,
   handleClick,
+  setRoomNumber,
+  images,
   link,
   buttonText,
 }: MeetingCardProps) => {
   const { toast } = useToast();
 
+  const setMemberInfo = (images: Creator[]) => {
+    setRoomOwner(owner);
+    setRoomNumber(link);
+    setShowMembers(true);
+    setMembers(images);
+  };
   return (
     <section className="flex relative min-h-[258px] w-full flex-col justify-between rounded-[14px] bg-dark-1 px-5 py-8 xl:max-w-[568px]">
       <Image
@@ -51,11 +80,14 @@ const MeetingCard = ({
         </div>
       </article>
       <article className={cn("flex justify-center relative", {})}>
-        <div className="relative flex w-full max-sm:hidden">
-          {avatarImages.map((img, index) => (
+        <div
+          className="relative flex w-full max-sm:hidden cursor-pointer"
+          onClick={() => setMemberInfo(images)}
+        >
+          {images?.slice(0, 5).map((img, index) => (
             <Image
               key={index}
-              src={img}
+              src={img.image}
               alt="attendees"
               width={40}
               height={40}
@@ -63,9 +95,16 @@ const MeetingCard = ({
               style={{ top: 0, left: index * 28 }}
             />
           ))}
-          <div className="flex-center absolute left-[136px] size-10 rounded-full border-[5px] border-dark-3 bg-dark-4">
-            +5
-          </div>
+          {images.length === 0 && (
+            <div className="absolute bottom-0  text-[1.1rem] font-medium">
+              No members
+            </div>
+          )}
+          {images && images.length > 5 && (
+            <div className="flex-center absolute left-[136px] size-10 rounded-full border-[5px] border-dark-3 bg-dark-4">
+              +5
+            </div>
+          )}
         </div>
         {!isPreviousMeeting && (
           <div className="flex gap-2">

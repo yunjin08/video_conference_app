@@ -38,3 +38,28 @@ export const PATCH = async (request, { params }) => {
     }
   }
 };
+
+export const DELETE = async (request, { params }) => {
+  if (request.method === "DELETE") {
+    try {
+      const updatedMeeting = await prisma.MeetingRooms.update({
+        where: {
+          room_meeting: params.user,
+        },
+        data: {
+          room_members: {
+            disconnect: [{ user_id: params.id }],
+          },
+        },
+      });
+
+      return new Response("Update room members", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("Error reading the database:", error);
+      return new Response("Error reading the database", { status: 500 });
+    }
+  }
+};

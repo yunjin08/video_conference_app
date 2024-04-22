@@ -11,6 +11,7 @@ export const GET = async (request, { params }) => {
           meeting_rooms: {
             include: {
               creator: true,
+              room_members: true,
             },
           },
         },

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
@@ -10,6 +11,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import MeetingCard from "@/components/MeetingCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import MembersModal from "@/components/MembersModal";
+import { cn } from "@/lib/utils";
 
 const initialValues = {
   title: "",
@@ -25,6 +28,7 @@ interface MeetingRoom {
   room_meeting: string;
   user_id_creator: string;
   creator: Creator;
+  room_members: Creator[];
 }
 
 interface UpcomingCall {
@@ -53,6 +57,7 @@ interface JoinedRoom {
   meeting_title: string;
   meeting_description: string;
   meeting_url: string;
+  room_members: Creator[];
 }
 
 const PersonalRoom = () => {
@@ -62,9 +67,14 @@ const PersonalRoom = () => {
   const { toast } = useToast();
   const [values, setValues] = useState(initialValues);
   const [loading, setLoading] = useState(false);
+  const [ableEdit, setAbleEdit] = useState(false);
+  const [showMembers, setShowMembers] = useState<boolean>(false);
+  const [roomNumber, setRoomNumber] = useState("");
+  const [roomOwner, setRoomOwner] = useState("");
   const [meetingState, setMeetingState] = useState<
     "createRoom" | "joinRoom" | undefined
   >(undefined);
+  const [members, setMembers] = useState<Creator[]>([]);
   const [createRoom, setCreateRoom] = useState(false);
   const [joinRoom, setJoinRoom] = useState(false);
   const [roomId, setRoomId] = useState("");
@@ -74,6 +84,25 @@ const PersonalRoom = () => {
 
   const showCreateRoom = () => {
     setMeetingState("createRoom");
+  };
+
+  const deleteUser = async (member: String, room: String) => {
+    const hasConfirmed = confirm("Are you sure you want to delete this user?");
+    if (hasConfirmed) {
+      try {
+        const response = await fetch(`/api/meetingRoom/${member}/${room}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          // Check if the server responded with a non-200 HTTP status
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        console.log("Delete successful!");
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const setJoiningRoom = () => {
@@ -165,6 +194,7 @@ const PersonalRoom = () => {
 
       const result = await response.json();
       setJoinedRooms(result);
+      console.log(result, "resukt");
       // Handle success here, e.g. display a message, redirect, etc.
     } catch (error) {
       console.error("Error fetching meeting data:", error);
@@ -212,8 +242,56 @@ const PersonalRoom = () => {
     fetchData();
     fetchRoomsJoined();
   }, [fetchData, fetchRoomsJoined]);
+
+  console.log(members, "member");
+
   return (
     <div className="grid relative w-full h-full">
+      {/* Members Modal */}
+      <MembersModal
+        isOpen={showMembers === true}
+        onClose={() => {
+          setAbleEdit(false);
+          setShowMembers(false);
+        }}
+        title="Edit Meeting Room"
+        disabled={user?.id !== roomOwner}
+        className={`${loading && "opacity-95"}`}
+        buttonText="Edit Meeting Room"
+        setAbleEdit={setAbleEdit}
+        handleClick={() => {
+          setAbleEdit(true);
+        }}
+      >
+        {loading && <LoadingSpinner />}
+        <h1 className="text-xl font-bold"> Members</h1>
+        {members.length > 0 && (
+          <div className="flex  flex-col">
+            {members.map((member, index) => (
+              <div
+                key={member.user_id}
+                className={`flex pl-[2rem] items-center h-full space-x-4 pb-5  ${
+                  ableEdit && "hover:text-blue-1 cursor-pointer"
+                } `}
+                onClick={() => {
+                  ableEdit && deleteUser(member.user_id, roomNumber);
+                }}
+              >
+                <Image
+                  src={member.image}
+                  alt="attendee"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+                <h2 className="text-xl font-normal">
+                  {member.first_name} {member.last_name}
+                </h2>
+              </div>
+            ))}
+          </div>
+        )}
+      </MembersModal>
       <MeetingModal
         isOpen={meetingState === "createRoom"}
         onClose={() => setMeetingState(undefined)}
@@ -282,8 +360,14 @@ const PersonalRoom = () => {
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               {meetingRooms.map((room) => (
                 <MeetingCard
+                  images={room?.room_members}
                   key={room?.room_meeting}
                   icon={"/icons/upcoming.svg"}
+                  setRoomNumber={setRoomNumber}
+                  setRoomOwner={setRoomOwner}
+                  setMembers={setMembers}
+                  setShowMembers={setShowMembers}
+                  owner={room?.creator.user_id}
                   ownerImg={room.creator.image}
                   title={room?.meeting_title}
                   date={room?.meeting_description}
@@ -312,8 +396,14 @@ const PersonalRoom = () => {
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               {joinedRoom.map((room) => (
                 <MeetingCard
+                  images={room?.room_members}
                   key={room?.room_meeting}
                   ownerImg={room.creator.image}
+                  setRoomNumber={setRoomNumber}
+                  setRoomOwner={setRoomOwner}
+                  setMembers={setMembers}
+                  setShowMembers={setShowMembers}
+                  owner={room?.creator.user_id}
                   icon={"/icons/upcoming.svg"}
                   title={room?.meeting_title}
                   date={room?.meeting_description}

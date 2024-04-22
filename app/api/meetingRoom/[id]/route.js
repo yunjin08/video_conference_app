@@ -9,6 +9,7 @@ export const GET = async (request, { params }) => {
         },
         include: {
           creator: true,
+          room_members: true,
         },
       });
       return new Response(JSON.stringify(MeetingRooms), {
