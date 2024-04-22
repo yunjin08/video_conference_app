@@ -113,7 +113,7 @@ const PersonalRoom = () => {
       const user_id_creator = user.id || "";
       const meeting_title = values.title || "";
       const meeting_description = description;
-      const meeting_url = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${id}`;
+      const meeting_url = `meeting/${id}`;
       UpcomingCalls.push({
         room_meeting,
         user_id_creator,
@@ -212,7 +212,7 @@ const PersonalRoom = () => {
     fetchData();
     fetchRoomsJoined();
   }, [fetchData, fetchRoomsJoined]);
-
+  console.log(joinedRoom);
   return (
     <div className="grid relative w-full h-full">
       <MeetingModal
@@ -298,7 +298,7 @@ const PersonalRoom = () => {
         ) : (
           <h1 className={`text-xl font-bold lg:text-[1.35rem]`}>
             {" "}
-            {!joinedRoom && "Create a Meeting"}
+            {joinedRoom.length === 0 && "Create a Meeting"}
           </h1>
         )}
         {joinedRoom.length > 0 ? (
