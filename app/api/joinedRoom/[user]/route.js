@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 export const GET = async (request, { params }) => {
   if (request.method === "GET") {
     try {
-      console.log(params.user);
       const accountWithMeetingRooms = await prisma.Account.findUnique({
         where: {
           user_id: params.user, // Filter by the user ID

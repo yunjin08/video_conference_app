@@ -11,7 +11,6 @@ export const GET = async (request, { params }) => {
           creator: true,
         },
       });
-      console.log(MeetingRooms);
       return new Response(JSON.stringify(MeetingRooms), {
         status: 200,
         headers: { "Content-Type": "application/json" },

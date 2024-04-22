@@ -4,7 +4,6 @@ export const POST = async (request) => {
   if (request.method === "POST") {
     try {
       const meetingRoom = await request.json();
-      console.log(meetingRoom, "meeting roooms");
       for (const call of meetingRoom) {
         const existingUpcoming = await prisma.MeetingRooms.findUnique({
           where: { room_meeting: call.room_meeting },

@@ -212,7 +212,6 @@ const PersonalRoom = () => {
     fetchData();
     fetchRoomsJoined();
   }, [fetchData, fetchRoomsJoined]);
-  console.log(joinedRoom);
   return (
     <div className="grid relative w-full h-full">
       <MeetingModal

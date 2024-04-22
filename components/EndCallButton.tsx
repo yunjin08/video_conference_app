@@ -1,4 +1,9 @@
-import { Call, StreamCall, useCall, useCallStateHooks,} from "@stream-io/video-react-sdk";
+import {
+  Call,
+  StreamCall,
+  useCall,
+  useCallStateHooks,
+} from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { Button } from "./ui/button";
@@ -6,10 +11,15 @@ import { Button } from "./ui/button";
 function EndCallButton() {
   const call = useCall();
   const router = useRouter();
-  const { useLocalParticipant, useParticipants, useCallStartedAt, useParticipantCount } = useCallStateHooks();
+  const {
+    useLocalParticipant,
+    useParticipants,
+    useCallStartedAt,
+    useParticipantCount,
+  } = useCallStateHooks();
   const participants = useParticipants();
   const localParticipant = useLocalParticipant();
-  const startTime = useCallStartedAt()
+  const startTime = useCallStartedAt();
   const numOfParticipants = useParticipantCount();
 
   const isMeetingOwner =
@@ -19,9 +29,6 @@ function EndCallButton() {
 
   if (!isMeetingOwner) return null;
 
-
-  
-
   const endCall = async () => {
     let userParticipant: string[] = [];
     participants.forEach((user) => userParticipant.push(user.userId));
@@ -29,33 +36,45 @@ function EndCallButton() {
     if (!startTime) {
       console.error("Start time is undefined.");
       return; // Return or handle the error condition appropriately
-  }
-  
+    }
+
     const endTime = new Date();
-    const callId = call?.id
-    const callOwner = call?.state?.createdBy?.id
-    const duration = (((endTime.getTime() - new Date(startTime).getTime()) / 1000) / 60).toFixed(2);
-    const userData = {callId , callOwner, startTime, endTime, duration, userParticipant, numOfParticipants};
+    const callId = call?.id;
+    const callOwner = call?.state?.createdBy?.id;
+    const duration = (
+      (endTime.getTime() - new Date(startTime).getTime()) /
+      1000 /
+      60
+    ).toFixed(2);
+    const userData = {
+      callId,
+      callOwner,
+      startTime,
+      endTime,
+      duration,
+      userParticipant,
+      numOfParticipants,
+    };
 
     try {
-        const response = await fetch('/api/meeting', {
-          method: 'POST',
-          body: JSON.stringify(userData)
-        });
+      const response = await fetch("/api/meeting", {
+        method: "POST",
+        body: JSON.stringify(userData),
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to create meeting details');
-        }
-
-        const result = await response.json();
-        console.log('Meeting added:', result);
+      if (!response.ok) {
         await call.endCall();
-        router.push("/");
-        // Handle success here, e.g. display a message, redirect, etc.
-      } catch (error) {
-        console.error('Error creating meeting data:', error);
-        // Handle errors here, e.g. display error messages
+        throw new Error("Failed to create meeting details");
       }
+
+      const result = await response.json();
+      await call.endCall();
+      router.push("/");
+      // Handle success here, e.g. display a message, redirect, etc.
+    } catch (error) {
+      console.error("Error creating meeting data:", error);
+      // Handle errors here, e.g. display error messages
+    }
   };
 
   return (

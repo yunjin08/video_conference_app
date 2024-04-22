@@ -11,7 +11,6 @@ export const PATCH = async (request, { params }) => {
       const existingParticipants =
         existingMeetingRoom?.room_members.map((member) => member.user_id) || [];
 
-      console.log(params.user);
       const allParticipants = [...existingParticipants, params.user];
 
       // Update the meeting room with the combined list of participants
