@@ -66,8 +66,6 @@ function EndCallButton() {
         await call.endCall();
         throw new Error("Failed to create meeting details");
       }
-
-      const result = await response.json();
       await call.endCall();
       router.push("/");
       // Handle success here, e.g. display a message, redirect, etc.
