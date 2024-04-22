@@ -3,12 +3,11 @@ import prisma from "@/lib/prisma";
 export const GET = async (request, { params }) => {
   if (request.method === "GET") {
     try {
-      const now = new Date();
       const upcomingMeeting = await prisma.UpcomingMeeting.findFirst({
         where: {
+          user_id: params.id,
           meeting_time: {
-            user_id: params.id,
-            gt: now, // greater than the current time
+            gt: new Date(), // greater than the current time
           },
         },
         orderBy: {
