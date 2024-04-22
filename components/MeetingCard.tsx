@@ -10,16 +10,16 @@ import { useToast } from "./ui/use-toast";
 interface MeetingCardProps {
   title: string;
   date: string;
-  setMembers: Dispatch<SetStateAction<Creator[]>>;
+  setMembers?: Dispatch<SetStateAction<Creator[]>>;
   icon: string;
   isPreviousMeeting?: boolean;
   buttonIcon1?: string;
-  setRoomOwner: Dispatch<SetStateAction<string>>;
+  setRoomOwner?: Dispatch<SetStateAction<string>>;
   buttonText?: string;
-  setShowMembers: Dispatch<SetStateAction<boolean>>;
-  images: Creator[];
+  setShowMembers?: Dispatch<SetStateAction<boolean>>;
+  images?: Creator[];
   owner?: string;
-  setRoomNumber: Dispatch<SetStateAction<string>>;
+  setRoomNumber?: Dispatch<SetStateAction<string>>;
   ownerImg?: string;
   handleClick: () => void;
   link: string;
@@ -56,10 +56,10 @@ const MeetingCard = ({
   const { toast } = useToast();
 
   const setMemberInfo = (images: Creator[]) => {
-    setRoomOwner(owner);
-    setRoomNumber(link);
-    setShowMembers(true);
-    setMembers(images);
+    setRoomOwner?.(owner || "");
+    setRoomNumber?.(link);
+    setShowMembers?.(true);
+    setMembers?.(images);
   };
   return (
     <section className="flex relative min-h-[258px] w-full flex-col justify-between rounded-[14px] bg-dark-1 px-5 py-8 xl:max-w-[568px]">
@@ -82,7 +82,11 @@ const MeetingCard = ({
       <article className={cn("flex justify-center relative", {})}>
         <div
           className="relative flex w-full max-sm:hidden cursor-pointer"
-          onClick={() => setMemberInfo(images)}
+          onClick={() => {
+            if (images) {
+              setMemberInfo(images);
+            }
+          }}
         >
           {images?.slice(0, 5).map((img, index) => (
             <Image
@@ -95,7 +99,7 @@ const MeetingCard = ({
               style={{ top: 0, left: index * 28 }}
             />
           ))}
-          {images.length === 0 && (
+          {images && images.length === 0 && (
             <div className="absolute bottom-0  text-[1.1rem] font-medium">
               No members
             </div>
