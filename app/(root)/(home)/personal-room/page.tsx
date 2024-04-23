@@ -257,6 +257,7 @@ const PersonalRoom = () => {
         title="Edit Meeting Room"
         disabled={user?.id !== roomOwner}
         className={`${loading && "opacity-95"}`}
+        ableEdit={ableEdit}
         buttonText="Edit Meeting Room"
         setAbleEdit={setAbleEdit}
         handleClick={() => {

@@ -20,10 +20,13 @@ interface MeetingModalProps {
   setAbleEdit: Dispatch<SetStateAction<boolean>>;
   handleClick?: () => void;
   buttonText?: string;
+  ableEdit?: boolean;
   disabled?: boolean;
   image?: string;
   buttonIcon?: string;
 }
+
+
 
 const MembersModal = ({
   isOpen,
@@ -33,11 +36,21 @@ const MembersModal = ({
   setAbleEdit,
   children,
   handleClick,
+  ableEdit,
   disabled,
   buttonText,
   image,
   buttonIcon,
 }: MeetingModalProps) => {
+  const getMessage = () => {
+    if (disabled) {
+      return "Contact the room owner to delete a user.";
+    } else if (ableEdit) {
+      return "You can edit now, click a user to delete.";
+    } else {
+      return "Note: You can delete a user by clicking 'Edit' and then selecting a user.";
+    }
+  };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="gap-6 border-none bg-dark-1 px-6 py-9 text-white">
@@ -48,7 +61,7 @@ const MembersModal = ({
             </div>
           )}
           <h1 className={cn(`text-3xl font-bold leading-[42px]`, className)}>
-            {title}
+            {!disabled ? title : "Meeting Room"}
           </h1>
           {children}
           <div></div>
@@ -75,9 +88,7 @@ const MembersModal = ({
               disabled && "text-red-500"
             }`}
           >
-            {disabled
-              ? "Contact the room owner to delete a user."
-              : "Note: You can delete user by clicking Edit and select a user."}
+            {getMessage()}
           </div>
         </div>
       </DialogContent>
