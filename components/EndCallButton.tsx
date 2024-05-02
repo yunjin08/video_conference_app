@@ -22,6 +22,8 @@ function EndCallButton() {
   const startTime = useCallStartedAt();
   const numOfParticipants = useParticipantCount();
 
+  console.log(call?.state?.custom?.description , 'call here');
+
   const isMeetingOwner =
     localParticipant &&
     call?.state.createdBy &&
@@ -41,6 +43,7 @@ function EndCallButton() {
     const endTime = new Date();
     const callId = call?.id;
     const callOwner = call?.state?.createdBy?.id;
+    const title = call?.state?.custom?.description;
     const duration = (
       (endTime.getTime() - new Date(startTime).getTime()) /
       1000 /
@@ -49,6 +52,7 @@ function EndCallButton() {
     const userData = {
       callId,
       callOwner,
+      title,
       startTime,
       endTime,
       duration,

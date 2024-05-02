@@ -29,9 +29,10 @@ model Account {
 model MeetingDetails {
   meeting_id   String   @id
   creator_user_id      String
+  title String
   start_time   DateTime
-  end_time     DateTime
-  duration     String 
+  end_time     DateTime?
+  duration     String?
   participants String[]
   num_of_participants   Int @default(0)
   creator      Account  @relation(fields: [creator_user_id], references: [user_id], name: "AccountMeetings")
@@ -51,7 +52,7 @@ model UpcomingMeeting {
   upcoming_meeting_id String @id
   user_id             String
   meeting_time        DateTime
-  meeting_description String
+  meeting_description String?
   meeting_url         String 
   account      Account         @relation(fields: [user_id], references: [user_id])
 }
@@ -60,7 +61,7 @@ model MeetingRooms {
   room_meeting        String @id
   user_id_creator     String
   meeting_title       String 
-  meeting_description String
+  meeting_description String?
   meeting_url         String 
   room_members         Account[] @relation("RoomParticipants")
   creator              Account   @relation(fields: [user_id_creator], references: [user_id])

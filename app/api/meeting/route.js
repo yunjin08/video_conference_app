@@ -5,12 +5,14 @@ export const POST = async (request) => {
     const {
       callId,
       callOwner,
+      title,
       startTime,
       endTime,
       duration,
       userParticipant,
       numOfParticipants,
     } = await request.json();
+    
     try {
       const exisitingMeeting = await prisma.MeetingDetails.findUnique({
         where: { meeting_id: callId },
@@ -23,6 +25,7 @@ export const POST = async (request) => {
           data: {
             meeting_id: callId,
             creator_user_id: callOwner,
+            title: title,
             start_time: startTime,
             end_time: endTime,
             duration: duration,
