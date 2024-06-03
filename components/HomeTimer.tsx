@@ -54,7 +54,7 @@ function HomeTimer() {
         setUpcomingTime(result.meeting_time);
         // Handle success here, e.g. display a message, redirect, etc.
       } catch (error) {
-        console.error("Error fetching meeting data:", error);
+        console.error("Error fetching meeting data, no meetings yet:", error);
       }
     };
 

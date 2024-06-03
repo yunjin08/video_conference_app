@@ -22,8 +22,6 @@ function EndCallButton() {
   const startTime = useCallStartedAt();
   const numOfParticipants = useParticipantCount();
 
-  console.log(call?.state?.custom?.description , 'call here');
-
   const isMeetingOwner =
     localParticipant &&
     call?.state.createdBy &&

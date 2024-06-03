@@ -6,16 +6,26 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { avatarImages } from "@/constants";
 import { useToast } from "./ui/use-toast";
+import { format } from 'date-fns';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface MeetingCardProps {
   title: string;
-  date: string;
+  date: string | Date;
   setMembers?: Dispatch<SetStateAction<Creator[]>>;
   icon: string;
   isPreviousMeeting?: boolean;
   buttonIcon1?: string;
   setRoomOwner?: Dispatch<SetStateAction<string>>;
   buttonText?: string;
+  onClickDelete: () => Promise<void>; 
   setShowMembers?: Dispatch<SetStateAction<boolean>>;
   images?: Creator[];
   owner?: string;
@@ -43,6 +53,7 @@ const MeetingCard = ({
   ownerImg,
   setMembers,
   setRoomOwner,
+  onClickDelete,
   owner,
   isPreviousMeeting,
   buttonIcon1,
@@ -54,6 +65,17 @@ const MeetingCard = ({
   buttonText,
 }: MeetingCardProps) => {
   const { toast } = useToast();
+
+  let formattedTime = '';
+
+  console.log(date,'date');
+
+  try {
+    formattedTime = typeof date === 'string' ? date : format(date, 'yyyy-MM-dd HH:mm:ss');
+  } catch (error) {
+    console.error("Invalid date value:", date);
+  }
+
 
   const setMemberInfo = (images: Creator[]) => {
     setRoomOwner?.(owner || "");
@@ -69,7 +91,7 @@ const MeetingCard = ({
           alt="attendees"
           width={40}
           height={40}
-          className="rounded-full absolute right-[2rem]"
+          className="rounded-full top-[1rem] absolute right-[2rem]"
         />
       )}
       <article className="flex flex-col gap-5">
@@ -77,7 +99,7 @@ const MeetingCard = ({
         <div className="flex justify-between">
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-bold">{title}</h1>
-            <p className="text-base font-normal">{date}</p>
+            <p className="text-base font-normal">{formattedTime}</p>
           </div>
         </div>
       </article>
@@ -114,6 +136,9 @@ const MeetingCard = ({
         </div>
         {!isPreviousMeeting && (
           <div className="flex gap-2">
+              <Button onClick={()=>onClickDelete} className="rounded bg-red-500 px-4">
+              Del
+            </Button>
             <Button onClick={handleClick} className="rounded bg-blue-1 px-6">
               {buttonIcon1 && (
                 <Image src={buttonIcon1} alt="feature" width={20} height={20} />

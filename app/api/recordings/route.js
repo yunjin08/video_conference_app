@@ -3,11 +3,11 @@ import prisma from "@/lib/prisma";
 export const POST = async (request) => {
   if (request.method === "POST") {
     const recordings = await request.json();
-
     try {
       const results = await Promise.all(
         recordings.map(async (recording) => {
           // Check if a recording with the same meeting_id already exists
+          
           const existingRecording = await prisma.Recordings.findUnique({
             where: { filename: recording.filename },
           });
@@ -41,3 +41,4 @@ export const POST = async (request) => {
     }
   }
 };
+

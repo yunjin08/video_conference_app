@@ -9,6 +9,7 @@ import Loader from "./Loader";
 import { useGetCalls } from "@/hooks/useGetCalls";
 import MeetingCard from "./MeetingCard";
 import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 interface Recording {
@@ -16,13 +17,60 @@ interface Recording {
   user_id: string;
   meeting_id: string;
   recording_url: string;
+  meeting: MeetingDetails;
+  account: Account;
+}
+
+interface NewRecording {
+  filename: string;
+  user_id: string;
+  meeting_id: string;
+  recording_url: string;
+}
+
+interface Account {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  image: string;
+  email: string;
+  account_type: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface MeetingDetails {
+  meeting_id: string;
+  creator_user_id: string;
+  title: string;
+  start_time: string;
+  end_time?: string;
+  duration: string;
+  participants: string[];
+  num_of_participants: number;
+  creator: Account;
+  recordings: Recording[];
+}
+
+interface UpcomingMeeting {
+  account: Account;
+  upcoming_meeting_id: string;
+  user_id: string;
+  meeting_time: Date;
+  meeting_description?: string;
+  meeting_url: string;
 }
 
 const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   const router = useRouter();
-  const { endedCalls, upcomingCalls, callRecordings, isLoading } =
+  const { user } = useUser();
+  const [isLoading, setIsLoading] = useState<Boolean>(true);
+  const { endedCalls, upcomingCalls, callRecordings } =
     useGetCalls();
   const [recordings, setRecordings] = useState<CallRecording[]>([]);
+  const [doneMeeting, setDoneMeetings] = useState<MeetingDetails[]>([]);
+  const [upcomingMeeting, setUpcomingMeeting] = useState<UpcomingMeeting[]>([]);
+  const [recordingsData, setRecordingsData] = useState<Recording[]>([]);
 
   const getCalls = () => {
     switch (type) {
@@ -50,6 +98,66 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
     return meetingId;
   }
 
+  
+  const deleteUpcoming = async (id: string) => {
+    const hasConfirmed = confirm("Are you sure you want to delete this upcoming meeting?");
+    if (hasConfirmed) {
+      try {
+        const response = await fetch(`/api/upcoming/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          // Check if the server responded with a non-200 HTTP status
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        console.log("Delete successful!");
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  console.log(recordingsData , 'recordings ');
+  const deletePrevious = async (id: string) => {
+    const hasConfirmed = confirm("Are you sure you want to delete this previous meeting?");
+    if (hasConfirmed) {
+      try {
+        const response = await fetch(`/api/meeting/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          // Check if the server responded with a non-200 HTTP status
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        console.log("Delete successful!");
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  
+  const deleteRecordings = async (id: String) => {
+    const hasConfirmed = confirm("Are you sure you want to delete this recording?");
+    if (hasConfirmed) {
+      try {
+        const response = await fetch(`/api/recordings/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          // Check if the server responded with a non-200 HTTP status
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        console.log("Delete successful!");
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const getNoCallsMessage = () => {
     switch (type) {
       case "ended":
@@ -63,8 +171,71 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
     }
   };
 
+  useEffect(()=> {
+    const fetchData = async () => {
+      if (type === 'ended') {
+        
+        try {
+          const response = await fetch(`/api/meeting/${user?.id}`, {
+            method: "GET",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to get meetings");
+          }
+
+          const result = await response.json();
+          setDoneMeetings(result);
+          setIsLoading(false);
+          // Handle success here, e.g. display a message, redirect, etc.
+        } catch (error) {
+          console.error("Error fetching meeting data:", error);
+        }
+      }
+      if (type === 'upcoming') {
+        try {
+          const response = await fetch(`/api/upcoming/meetings/${user?.id}`, {
+            method: "GET",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to get meetings");
+          }
+
+          const result = await response.json();
+          setUpcomingMeeting(result);
+          setIsLoading(false);
+          // Handle success here, e.g. display a message, redirect, etc.
+        } catch (error) {
+          console.error("Error fetching meeting data:", error);
+        }
+      }
+      if (type === 'recordings') {
+        try {
+          const response = await fetch(`/api/recordings/${user?.id}`, {
+            method: "GET",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to get recording");
+          }
+
+          const result = await response.json();
+          setRecordingsData(result);
+          console.log(result, 'result');
+          setIsLoading(false);
+          // Handle success here, e.g. display a message, redirect, etc.
+        } catch (error) {
+          console.error("Error fetching recording data:", error);
+        }
+      }
+    };
+    setIsLoading(true);
+    fetchData();
+  }, [type, user?.id]);
+
   useEffect(() => {
-    let newRecording: Recording[] = [];
+    let newRecording: NewRecording[] = [];
 
     const fetchRecordings = async () => {
       if (!callRecordings || callRecordings.length === 0) {
@@ -111,55 +282,116 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
       fetchRecordings();
     }
   }, [type, callRecordings]);
-
+  console.log(isLoading, 'loading');
+  
   if (isLoading) return <Loader />;
 
   const calls = getCalls();
 
+  calls?.forEach((call)=> {
+    if( type === "ended"){
+      try {
+        const startTime = (call as Call)?.state?.startsAt;
+        const endTime = (call as Call)?.state?.endedAt;
+        const callId = (call as Call)?.id;
+        const callOwner = (call as Call)?.currentUserId;
+        const duration = startTime && endTime ? 
+        ((endTime.getTime() - startTime.getTime()) / 1000 / 60).toFixed(2) 
+        : undefined;
+        const numOfParticipants = (call as Call)?.state?.participantCount;
+
+        const formattedStartTime = startTime?.toLocaleString() || undefined;
+        const formattedEndTime = endTime?.toLocaleString() || undefined;
+        const userData = {
+          callId,
+          callOwner,
+          startTime,
+          endTime,
+          duration,
+          numOfParticipants,
+        };
+      } catch (error) {
+        
+      }
+  }
+  })
   const noCallsMessage = getNoCallsMessage();
 
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-      {calls && calls.length > 0 ? (
-        calls.map((meeting: Call | CallRecording) => (
-          <MeetingCard
-            key={(meeting as Call).id}
-            icon={
-              type === "ended"
-                ? "/icons/previous.svg"
-                : type === "upcoming"
-                ? "/icons/upcoming.svg"
-                : "/icons/recordings.svg"
-            }
-            title={
-              (meeting as Call).state?.custom?.description ||
-              (meeting as CallRecording).filename?.substring(0, 20) ||
-              "No Description"
-            }
-            date={
-              (meeting as Call).state?.startsAt?.toLocaleString() ||
-              (meeting as CallRecording).start_time?.toLocaleString()
-            }
-            isPreviousMeeting={type === "ended"}
-            link={
-              type === "recordings"
-                ? (meeting as CallRecording).url
-                : `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${
-                    (meeting as Call).id
-                  }`
-            }
-            buttonIcon1={type === "recordings" ? "/icons/play.svg" : undefined}
-            buttonText={type === "recordings" ? "Play" : "Start"}
-            handleClick={
-              type === "recordings"
-                ? () => router.push(`${(meeting as CallRecording).url}`)
-                : () => router.push(`/meeting/${(meeting as Call).id}`)
-            }
-          />
-        ))
-      ) : (
+      {type === 'ended' && (doneMeeting.length!==0 ? doneMeeting.map((meeting)=> (
+        <MeetingCard
+        key={meeting.meeting_id}
+        icon={"/icons/previous.svg"}
+        onClickDelete={() => {
+          if (type === "ended") {
+            return deletePrevious(meeting.meeting_id);
+          }
+          return Promise.resolve();
+        }}
+        title={meeting.title}
+        date={meeting.end_time || ""}
+        isPreviousMeeting={type === "ended"}
+        link={`${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${
+                meeting.meeting_id
+              }`
+        }
+        buttonIcon1={undefined}
+        buttonText="Start"
+        handleClick={ () => router.push(`/meeting/${meeting.meeting_id}`)}
+        ownerImg={meeting.creator.image}
+        owner={meeting.creator.first_name}
+      />
+      )): (
         <h1 className="text-2xl font-bold text-white">{noCallsMessage}</h1>
-      )}
+      ))}
+
+      {type === 'upcoming' && (upcomingMeeting.length!==0 ? upcomingMeeting.map((meeting)=> (
+        <MeetingCard
+        key={meeting.upcoming_meeting_id}
+        icon={"/icons/upcoming.svg"}
+        onClickDelete={() => {
+          if (type === "upcoming") {
+            return deletePrevious(meeting.upcoming_meeting_id);
+          }
+          return Promise.resolve();
+        }}
+        title={meeting.meeting_description || ''}
+        date={meeting.meeting_time}
+        link={meeting.meeting_url}
+        buttonIcon1={undefined}
+        buttonText="Start"
+        handleClick={ () => router.push(`${meeting.meeting_url}`)}
+        ownerImg={meeting.account.image}
+        owner={meeting.account.first_name}
+      />
+      )):(
+        <h1 className="text-2xl font-bold text-white">{noCallsMessage}</h1>
+      ))}
+
+
+      {type === 'recordings' && (recordingsData.length!==0 ? recordingsData.map((meeting)=> (
+        <MeetingCard
+        key={meeting.meeting_id}
+        icon={"/icons/recordings.svg"}
+        onClickDelete={() => {
+          if (type === "recordings") {
+            return deletePrevious(meeting.meeting_id);
+          }
+          return Promise.resolve();
+        }}
+        title={meeting.meeting.title || ''}
+        date={meeting.meeting.end_time || ''}
+        link={meeting.recording_url}
+        buttonIcon1="/icons/play.svg"
+        buttonText="Play"
+        handleClick={ () => router.push(`${meeting.recording_url}`)}
+        ownerImg={meeting.account.image}
+        owner={meeting.account.first_name}
+      />
+      )):(
+        <h1 className="text-2xl font-bold text-white">{noCallsMessage}</h1>
+      ))}
     </div>
   );
 };

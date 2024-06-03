@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import MeetingCard from "@/components/MeetingCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import MembersModal from "@/components/MembersModal";
+import Loader from "@/components/Loader";
 import { cn } from "@/lib/utils";
 
 const initialValues = {
@@ -81,6 +82,7 @@ const PersonalRoom = () => {
   const [callDetails, setCallDetails] = useState<Call>();
   const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]);
   const [joinedRoom, setJoinedRooms] = useState<JoinedRoom[]>([]);
+  const [isLoading, setIsLoading] = useState<Boolean>(true);
 
   const showCreateRoom = () => {
     setMeetingState("createRoom");
@@ -194,7 +196,7 @@ const PersonalRoom = () => {
 
       const result = await response.json();
       setJoinedRooms(result);
-      console.log(result, "resukt");
+      setIsLoading(false);
       // Handle success here, e.g. display a message, redirect, etc.
     } catch (error) {
       console.error("Error fetching meeting data:", error);
@@ -239,11 +241,34 @@ const PersonalRoom = () => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     fetchData();
     fetchRoomsJoined();
   }, [fetchData, fetchRoomsJoined]);
 
-  console.log(members, "member");
+  const deleteJoined = async () => {
+    const hasConfirmed = confirm("Are you sure you want to delete this user?");
+    if (hasConfirmed) {
+      try {
+        const response = await fetch(`/api/meetingRoom/`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          // Check if the server responded with a non-200 HTTP status
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        console.log("Delete successful!");
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  
+  console.log(meetingRooms, joinedRoom, 'meeting');
+
+  if (isLoading) return <Loader />;
 
   return (
     <div className="grid relative w-full h-full">
@@ -361,6 +386,7 @@ const PersonalRoom = () => {
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               {meetingRooms.map((room) => (
                 <MeetingCard
+                  onClickDelete={deleteJoined}
                   images={room?.room_members}
                   key={room?.room_meeting}
                   icon={"/icons/upcoming.svg"}
@@ -397,6 +423,7 @@ const PersonalRoom = () => {
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               {joinedRoom.map((room) => (
                 <MeetingCard
+                  onClickDelete={deleteJoined}
                   images={room?.room_members}
                   key={room?.room_meeting}
                   ownerImg={room.creator.image}
