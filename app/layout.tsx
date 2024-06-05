@@ -25,6 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+      <meta name="og:image" content="/images/linkup-logo.png" />
+      </head>
       <ClerkProvider
         appearance={{
           layout: {
