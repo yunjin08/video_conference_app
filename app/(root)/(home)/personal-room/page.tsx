@@ -91,6 +91,7 @@ const PersonalRoom = () => {
   const deleteUser = async (member: String, room: String) => {
     const hasConfirmed = confirm("Are you sure you want to delete this user?");
     if (hasConfirmed) {
+      setLoading(true);
       try {
         const response = await fetch(`/api/meetingRoom/${member}/${room}`, {
           method: "DELETE",
@@ -246,11 +247,30 @@ const PersonalRoom = () => {
     fetchRoomsJoined();
   }, [fetchData, fetchRoomsJoined]);
 
-  const deleteJoined = async () => {
+  const deleteRooms = async (id: string) => {
     const hasConfirmed = confirm("Are you sure you want to delete this user?");
     if (hasConfirmed) {
       try {
-        const response = await fetch(`/api/meetingRoom/`, {
+        const response = await fetch(`/api/meetingRoom/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          // Check if the server responded with a non-200 HTTP status
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        console.log("Delete successful!");
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  const deleteJoined = async ( id: string, room: string) => {
+    const hasConfirmed = confirm("Are you sure you want to delete this user?");
+    if (hasConfirmed) {
+      try {
+        const response = await fetch(`/api/joinedRoom/${room}/${id}`, {
           method: "DELETE",
         });
         if (!response.ok) {
@@ -386,7 +406,7 @@ const PersonalRoom = () => {
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               {meetingRooms.map((room) => (
                 <MeetingCard
-                  onClickDelete={deleteJoined}
+                  onClickDelete={()=>deleteRooms(room?.room_meeting)}
                   images={room?.room_members}
                   key={room?.room_meeting}
                   icon={"/icons/upcoming.svg"}
@@ -423,7 +443,7 @@ const PersonalRoom = () => {
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               {joinedRoom.map((room) => (
                 <MeetingCard
-                  onClickDelete={deleteJoined}
+                  onClickDelete={()=>deleteJoined( user?.id || '' , room?.room_meeting)}
                   images={room?.room_members}
                   key={room?.room_meeting}
                   ownerImg={room.creator.image}
