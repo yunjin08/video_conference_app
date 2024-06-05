@@ -36,13 +36,11 @@ export const PATCH = async (request, { params }) => {
 
 export const DELETE = async (request, {params}) => {
   if (request.method === "DELETE") {
-    
-    const { user_id, meeting_room_id } = params.user
 
     try {
       // Step 1: Check if the account exists
-      const account = await prisma.account.findUnique({
-        where: { user_id: user_id },
+      const account = await prisma.Account.findUnique({
+        where: { user_id: params.id },
         include: {
           meeting_rooms: true, // Fetch the meeting rooms the user is part of
         },
@@ -52,9 +50,10 @@ export const DELETE = async (request, {params}) => {
         return new Response("Account not found", { status: 404 });
       }
 
+      console.log(account.meeting_rooms, params.user, 'gg');
       // Step 2: Check if the account is part of the specified meeting room
       const isParticipant = account.meeting_rooms.some(
-        (room) => room.id === meeting_room_id
+        (room) => room.room_meeting === params.user
       );
 
       if (!isParticipant) {
@@ -62,11 +61,11 @@ export const DELETE = async (request, {params}) => {
       }
 
       // Step 3: Delete the association between the account and the meeting room
-      await prisma.meetingRooms.update({
-        where: { id: meeting_room_id },
+      await prisma.MeetingRooms.update({
+        where: { room_meeting: params.user },
         data: {
-          participants: {
-            disconnect: { user_id: user_id },
+          room_members: {
+            disconnect: { user_id: params.id },
           },
         },
       });
