@@ -5,7 +5,7 @@ import React, { ReactNode } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Joom",
+  title: "LinkUp: Connect",
   description: "Video Calling App",
   icons: {
     icon: "/icons/logo.svg",
