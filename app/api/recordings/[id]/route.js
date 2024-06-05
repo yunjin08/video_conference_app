@@ -30,7 +30,7 @@ export const DELETE = async (request, { params }) => {
               {
                 meeting: {
                   participants: {
-                    has: params.id
+                    some: { participant_id: params.id }
                   }
                 }
               },
