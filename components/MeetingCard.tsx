@@ -18,7 +18,8 @@ import {
 
 interface MeetingCardProps {
   title: string;
-  date: string | Date;
+  date?: string | Date;
+  description?: string;
   setMembers?: Dispatch<SetStateAction<Creator[]>>;
   icon: string;
   isPreviousMeeting?: boolean;
@@ -51,6 +52,7 @@ const MeetingCard = ({
   title,
   date,
   ownerImg,
+  description,
   setMembers,
   setRoomOwner,
   onClickDelete,
@@ -68,10 +70,13 @@ const MeetingCard = ({
 
   let formattedTime = '';
 
-  console.log(date,'date');
+  console.log(typeof date, 'date');
+
 
   try {
-    formattedTime = typeof date === 'string' ? date : format(date, 'yyyy-MM-dd HH:mm:ss');
+    if(date){
+      formattedTime = format(date, 'yyyy-MM-dd HH:mm:ss');
+    }
   } catch (error) {
     console.error("Invalid date value:", date);
   }
@@ -99,7 +104,7 @@ const MeetingCard = ({
         <div className="flex justify-between">
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-bold">{title}</h1>
-            <p className="text-base font-normal">{formattedTime}</p>
+            <p className="text-base font-normal">{date ? formattedTime : description}</p>
           </div>
         </div>
       </article>

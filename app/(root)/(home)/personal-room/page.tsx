@@ -417,7 +417,7 @@ const PersonalRoom = () => {
                   owner={room?.creator.user_id}
                   ownerImg={room.creator.image}
                   title={room?.meeting_title}
-                  date={room?.meeting_description}
+                  description={room?.meeting_description}
                   handleClick={() => router.push(`${room?.meeting_url}`)}
                   link={room?.room_meeting}
                   buttonText="Start"
@@ -454,7 +454,7 @@ const PersonalRoom = () => {
                   owner={room?.creator.user_id}
                   icon={"/icons/upcoming.svg"}
                   title={room?.meeting_title}
-                  date={room?.meeting_description}
+                  description={room?.meeting_description}
                   handleClick={() => router.push(`${room?.meeting_url}`)}
                   link={room?.room_meeting}
                   buttonText="Start"
