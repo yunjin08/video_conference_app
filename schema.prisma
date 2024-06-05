@@ -33,7 +33,7 @@ model MeetingDetails {
   start_time   DateTime
   end_time     DateTime?
   duration     String?
-  participants String[]
+  participants          Participants [] // Back-reference
   num_of_participants   Int @default(0)
   creator      Account  @relation(fields: [creator_user_id], references: [user_id], name: "AccountMeetings")
   recordings         Recordings[] // Add this line for back-reference
@@ -46,6 +46,13 @@ model Recordings {
   recording_url String
   meeting        MeetingDetails? @relation(fields: [meeting_id], references: [meeting_id]) // Establish the relation
   account      Account         @relation(fields: [user_id], references: [user_id])
+}
+
+model Participants {
+  participant_id       String              // Composite key
+  meeting_id           String              // Composite key
+  meeting              MeetingDetails     @relation(fields: [meeting_id], references: [meeting_id])
+  @@id([participant_id, meeting_id])
 }
 
 model UpcomingMeeting {

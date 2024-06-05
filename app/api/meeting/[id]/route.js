@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 
 export const DELETE = async (request, { params }) => {
     if (request.method === "DELETE") {
+      console.log(params.id, 'params');
       try {
           await prisma.MeetingDetails.delete({
           where: {
@@ -27,7 +28,7 @@ export const DELETE = async (request, { params }) => {
           where: {
             OR: [
               { creator_user_id: params.id },
-              { participants: { has: params.id } }
+              { participants: { some: { participant_id: params.id } } }
             ]
           },
           include: {

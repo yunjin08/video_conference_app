@@ -29,10 +29,17 @@ export const POST = async (request) => {
             start_time: startTime,
             end_time: endTime,
             duration: duration,
-            participants: userParticipant,
             num_of_participants: numOfParticipants,
           },
         });
+        await Promise.all(userParticipant.map(async (participant) => {
+          await prisma.Participants.create({
+            data: {
+              participant_id: participant,
+              meeting_id: callId,
+            }
+          });
+        }));
         return new Response(JSON.stringify(newMeeting), { status: 201 });
       }
     } catch (error) {

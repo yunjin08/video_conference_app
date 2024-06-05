@@ -89,6 +89,7 @@ const MeetingTypeList = () => {
         });
 
         if (!response.ok) {
+          console.error('Error creating new');
           throw new Error('Failed to create new meeting ');
         }
         setCallDetails(call);
@@ -100,7 +101,7 @@ const MeetingTypeList = () => {
         toast({ title: "Meeting Created" });
         setLoading(false);
       } catch (error) {
-        console.error('Error creating meeting:', error);
+        console.error('Error creating upcoming meeting:', error);
         // Handle errors here, e.g. display error messages
       }
     } catch (error) {

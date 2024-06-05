@@ -118,7 +118,6 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
     }
   };
 
-  console.log(recordingsData , 'recordings ');
   const deletePrevious = async (id: string) => {
     const hasConfirmed = confirm("Are you sure you want to delete this previous meeting?");
     if (hasConfirmed) {
@@ -323,12 +322,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
         <MeetingCard
         key={meeting.meeting_id}
         icon={"/icons/previous.svg"}
-        onClickDelete={() => {
-          if (type === "ended") {
-            return deletePrevious(meeting.meeting_id);
-          }
-          return Promise.resolve();
-        }}
+        onClickDelete={() => deletePrevious(meeting.meeting_id)}
         title={meeting.title}
         date={meeting.end_time || ""}
         isPreviousMeeting={type === "ended"}
@@ -350,12 +344,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
         <MeetingCard
         key={meeting.upcoming_meeting_id}
         icon={"/icons/upcoming.svg"}
-        onClickDelete={() => {
-          if (type === "upcoming") {
-            return deletePrevious(meeting.upcoming_meeting_id);
-          }
-          return Promise.resolve();
-        }}
+        onClickDelete={()=>deleteUpcoming(meeting.upcoming_meeting_id)}
         title={meeting.meeting_description || ''}
         date={meeting.meeting_time}
         link={meeting.meeting_url}
@@ -374,12 +363,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
         <MeetingCard
         key={meeting.meeting_id}
         icon={"/icons/recordings.svg"}
-        onClickDelete={() => {
-          if (type === "recordings") {
-            return deletePrevious(meeting.meeting_id);
-          }
-          return Promise.resolve();
-        }}
+        onClickDelete={() => deleteRecordings(meeting.filename)}
         title={meeting.meeting.title || ''}
         date={meeting.meeting.end_time || ''}
         link={meeting.recording_url}

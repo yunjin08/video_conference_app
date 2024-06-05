@@ -117,9 +117,9 @@ const MeetingCard = ({
               key={index}
               src={img.image}
               alt="attendees"
-              width={40}
-              height={40}
-              className={cn("rounded-full", { absolute: index > 0 })}
+              width={1240}
+              height={1240}
+              className={cn("rounded-full size-[2.5rem]", { absolute: index > 0 })}
               style={{ top: 0, left: index * 28 }}
             />
           ))}
@@ -134,9 +134,14 @@ const MeetingCard = ({
             </div>
           )}
         </div>
+        {isPreviousMeeting && (
+          <Button onClick={onClickDelete} className="rounded bg-red-500 px-4">
+            Delete
+          </Button>)
+        }
         {!isPreviousMeeting && (
           <div className="flex gap-2">
-              <Button onClick={()=>onClickDelete} className="rounded bg-red-500 px-4">
+              <Button onClick={onClickDelete} className="rounded bg-red-500 px-4">
               Del
             </Button>
             <Button onClick={handleClick} className="rounded bg-blue-1 px-6">
