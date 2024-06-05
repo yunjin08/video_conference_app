@@ -46,7 +46,6 @@ interface MeetingDetails {
   start_time: string;
   end_time?: string;
   duration: string;
-  participants: string[];
   num_of_participants: number;
   creator: Account;
   recordings: Recording[];
@@ -61,6 +60,12 @@ interface UpcomingMeeting {
   meeting_url: string;
 }
 
+interface ParticipantMeeting {
+  meeting: MeetingDetails;
+  meeting_id: string;
+  participant_id: string;
+}
+
 const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   const router = useRouter();
   const { user } = useUser();
@@ -68,7 +73,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   const { endedCalls, upcomingCalls, callRecordings } =
     useGetCalls();
   const [recordings, setRecordings] = useState<CallRecording[]>([]);
-  const [doneMeeting, setDoneMeetings] = useState<MeetingDetails[]>([]);
+  const [doneMeeting, setDoneMeetings] = useState<ParticipantMeeting[]>([]);
   const [upcomingMeeting, setUpcomingMeeting] = useState<UpcomingMeeting[]>([]);
   const [recordingsData, setRecordingsData] = useState<Recording[]>([]);
 
@@ -118,11 +123,11 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
     }
   };
 
-  const deletePrevious = async (id: string) => {
+  const deletePrevious = async (id: string, meeting: string) => {
     const hasConfirmed = confirm("Are you sure you want to delete this previous meeting?");
     if (hasConfirmed) {
       try {
-        const response = await fetch(`/api/meeting/${id}`, {
+        const response = await fetch(`/api/meeting/${id}/${meeting}`, {
           method: "DELETE",
         });
         if (!response.ok) {
@@ -184,6 +189,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
           }
 
           const result = await response.json();
+          console.log(result);
           setDoneMeetings(result);
           setIsLoading(false);
           // Handle success here, e.g. display a message, redirect, etc.
@@ -322,9 +328,9 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
         <MeetingCard
         key={meeting.meeting_id}
         icon={"/icons/previous.svg"}
-        onClickDelete={() => deletePrevious(meeting.meeting_id)}
-        title={meeting.title}
-        date={meeting.end_time || ""}
+        onClickDelete={() => deletePrevious( user?.id || '', meeting.meeting_id)}
+        title={meeting.meeting.title}
+        date={meeting.meeting.end_time || ""}
         isPreviousMeeting={type === "ended"}
         link={`${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${
                 meeting.meeting_id
@@ -333,8 +339,8 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
         buttonIcon1={undefined}
         buttonText="Start"
         handleClick={ () => router.push(`/meeting/${meeting.meeting_id}`)}
-        ownerImg={meeting.creator.image}
-        owner={meeting.creator.first_name}
+        ownerImg={meeting.meeting.creator.image}
+        owner={meeting.meeting.creator.first_name}
       />
       )): (
         <h1 className="text-2xl font-bold text-white">{noCallsMessage}</h1>
