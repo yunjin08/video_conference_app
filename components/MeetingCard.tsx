@@ -70,8 +70,6 @@ const MeetingCard = ({
 
   let formattedTime = '';
 
-  console.log(typeof date, 'date');
-
 
   try {
     if(date){

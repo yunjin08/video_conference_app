@@ -115,7 +115,6 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
           // Check if the server responded with a non-200 HTTP status
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("Delete successful!");
         window.location.reload();
       } catch (error) {
         console.log(error);
@@ -134,7 +133,6 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
           // Check if the server responded with a non-200 HTTP status
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("Delete successful!");
         window.location.reload();
       } catch (error) {
         console.log(error);
@@ -154,7 +152,6 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
           // Check if the server responded with a non-200 HTTP status
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("Delete successful!");
         window.location.reload();
       } catch (error) {
         console.log(error);
@@ -227,7 +224,6 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
 
           const result = await response.json();
           setRecordingsData(result);
-          console.log(result, 'result');
           setIsLoading(false);
           // Handle success here, e.g. display a message, redirect, etc.
         } catch (error) {
@@ -244,7 +240,6 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
 
     const fetchRecordings = async () => {
       if (!callRecordings || callRecordings.length === 0) {
-        console.log("No call recordings available.");
         return;
       }
 
@@ -287,7 +282,6 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
       fetchRecordings();
     }
   }, [type, callRecordings]);
-  console.log(isLoading, 'loading');
   
   if (isLoading) return <Loader />;
 

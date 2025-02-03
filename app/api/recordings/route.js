@@ -32,8 +32,6 @@ export const POST = async (request) => {
           }
         })
       );
-
-      console.log(results);
       return new Response(JSON.stringify(results), { status: 201 }); // Return all new recordings and skipped logs
     } catch (error) {
       console.error("Error creating or checking recordings:", error);

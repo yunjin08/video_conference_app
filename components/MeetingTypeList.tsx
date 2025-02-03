@@ -82,7 +82,6 @@ const MeetingTypeList = () => {
 
       try {
         setLoading(true);
-        console.log('logging');
         const response = await fetch('/api/upcoming', {
           method: 'POST',
           body: JSON.stringify(UpcomingCalls)

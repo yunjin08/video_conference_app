@@ -100,7 +100,6 @@ const PersonalRoom = () => {
           // Check if the server responded with a non-200 HTTP status
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("Delete successful!");
         window.location.reload();
       } catch (error) {
         console.log(error);
@@ -258,7 +257,6 @@ const PersonalRoom = () => {
           // Check if the server responded with a non-200 HTTP status
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("Delete successful!");
         window.location.reload();
       } catch (error) {
         console.log(error);
@@ -277,16 +275,12 @@ const PersonalRoom = () => {
           // Check if the server responded with a non-200 HTTP status
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("Delete successful!");
         window.location.reload();
       } catch (error) {
         console.log(error);
       }
     }
   }
-
-  
-  console.log(meetingRooms, joinedRoom, 'meeting');
 
   if (isLoading) return <Loader />;
 

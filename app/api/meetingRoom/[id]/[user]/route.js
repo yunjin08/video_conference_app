@@ -50,7 +50,6 @@ export const DELETE = async (request, {params}) => {
         return new Response("Account not found", { status: 404 });
       }
 
-      console.log(account.meeting_rooms, params.user, 'gg');
       // Step 2: Check if the account is part of the specified meeting room
       const isParticipant = account.meeting_rooms.some(
         (room) => room.room_meeting === params.user
