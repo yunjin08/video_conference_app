@@ -25,13 +25,26 @@ const config = {
           3: '#252A41',
           4: '#1E2757',
         },
+        primary: {
+          DEFAULT: '#93223D',
+          foreground: '#ffffff',
+        },
+        secondary: {
+          DEFAULT: '#0F6B43',
+          foreground: '#ffffff',
+        },
         blue: {
-          1: '#0E78F9',
+          1: '#93223D',
+          2: '#b32a4d',
+        },
+        green: {
+          1: '#0F6B43',
+          2: '#128556',
         },
         sky: {
-          1: '#C9DDFF',
-          2: '#ECF0FF',
-          3: '#F5FCFF',
+          1: '#e8d4d9',
+          2: '#f0e6e9',
+          3: '#f5eef1',
         },
         orange: {
           1: '#FF742E',
