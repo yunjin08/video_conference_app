@@ -1,16 +1,13 @@
 "use client";
 
-import {
-  Call,
-  CallRecording,
-  CallRecordingList,
-} from "@stream-io/video-react-sdk";
+import { Call, CallRecording } from "@stream-io/video-react-sdk";
 import Loader from "./Loader";
 import { useGetCalls } from "@/hooks/useGetCalls";
 import MeetingCard from "./MeetingCard";
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { CalendarX2, History, VideoOff } from "lucide-react";
 
 interface Recording {
   filename: string;
@@ -70,8 +67,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   const router = useRouter();
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState<Boolean>(true);
-  const { endedCalls, upcomingCalls, callRecordings } =
-    useGetCalls();
+  const { endedCalls, upcomingCalls, callRecordings } = useGetCalls();
   const [recordings, setRecordings] = useState<CallRecording[]>([]);
   const [doneMeeting, setDoneMeetings] = useState<ParticipantMeeting[]>([]);
   const [upcomingMeeting, setUpcomingMeeting] = useState<UpcomingMeeting[]>([]);
@@ -103,9 +99,10 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
     return meetingId;
   }
 
-  
   const deleteUpcoming = async (id: string) => {
-    const hasConfirmed = confirm("Are you sure you want to delete this upcoming meeting?");
+    const hasConfirmed = confirm(
+      "Are you sure you want to delete this upcoming meeting?"
+    );
     if (hasConfirmed) {
       try {
         const response = await fetch(`/api/upcoming/${id}`, {
@@ -123,7 +120,9 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
   };
 
   const deletePrevious = async (id: string, meeting: string) => {
-    const hasConfirmed = confirm("Are you sure you want to delete this previous meeting?");
+    const hasConfirmed = confirm(
+      "Are you sure you want to delete this previous meeting?"
+    );
     if (hasConfirmed) {
       try {
         const response = await fetch(`/api/meeting/${id}/${meeting}`, {
@@ -140,9 +139,10 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
     }
   };
 
-  
   const deleteRecordings = async (id: String) => {
-    const hasConfirmed = confirm("Are you sure you want to delete this recording?");
+    const hasConfirmed = confirm(
+      "Are you sure you want to delete this recording?"
+    );
     if (hasConfirmed) {
       try {
         const response = await fetch(`/api/recordings/${id}`, {
@@ -172,10 +172,38 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
     }
   };
 
-  useEffect(()=> {
+  const getEmptyStateDetails = () => {
+    switch (type) {
+      case "ended":
+        return {
+          icon: <History className="size-10 text-blue-1" />,
+          title: "No previous calls yet",
+          description: "Your finished meetings will appear here.",
+        };
+      case "upcoming":
+        return {
+          icon: <CalendarX2 className="size-10 text-blue-1" />,
+          title: "No upcoming meetings",
+          description: "Scheduled meetings will show up here.",
+        };
+      case "recordings":
+        return {
+          icon: <VideoOff className="size-10 text-blue-1" />,
+          title: "No recordings yet",
+          description: "Recorded meetings will appear here.",
+        };
+      default:
+        return {
+          icon: null,
+          title: "",
+          description: "",
+        };
+    }
+  };
+
+  useEffect(() => {
     const fetchData = async () => {
-      if (type === 'ended') {
-        
+      if (type === "ended") {
         try {
           const response = await fetch(`/api/meeting/${user?.id}`, {
             method: "GET",
@@ -194,7 +222,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
           console.error("Error fetching meeting data:", error);
         }
       }
-      if (type === 'upcoming') {
+      if (type === "upcoming") {
         try {
           const response = await fetch(`/api/upcoming/meetings/${user?.id}`, {
             method: "GET",
@@ -212,7 +240,7 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
           console.error("Error fetching meeting data:", error);
         }
       }
-      if (type === 'recordings') {
+      if (type === "recordings") {
         try {
           const response = await fetch(`/api/recordings/${user?.id}`, {
             method: "GET",
@@ -282,21 +310,22 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
       fetchRecordings();
     }
   }, [type, callRecordings]);
-  
+
   if (isLoading) return <Loader />;
 
   const calls = getCalls();
 
-  calls?.forEach((call)=> {
-    if( type === "ended"){
+  calls?.forEach((call) => {
+    if (type === "ended") {
       try {
         const startTime = (call as Call)?.state?.startsAt;
         const endTime = (call as Call)?.state?.endedAt;
         const callId = (call as Call)?.id;
         const callOwner = (call as Call)?.currentUserId;
-        const duration = startTime && endTime ? 
-        ((endTime.getTime() - startTime.getTime()) / 1000 / 60).toFixed(2) 
-        : undefined;
+        const duration =
+          startTime && endTime
+            ? ((endTime.getTime() - startTime.getTime()) / 1000 / 60).toFixed(2)
+            : undefined;
         const numOfParticipants = (call as Call)?.state?.participantCount;
 
         const formattedStartTime = startTime?.toLocaleString() || undefined;
@@ -309,73 +338,93 @@ const CallList = ({ type }: { type: "ended" | "upcoming" | "recordings" }) => {
           duration,
           numOfParticipants,
         };
-      } catch (error) {
-        
-      }
-  }
-  })
+      } catch (error) {}
+    }
+  });
   const noCallsMessage = getNoCallsMessage();
+  const emptyStateDetails = getEmptyStateDetails();
+
+  const EmptyState = () => (
+    <div className="col-span-full flex min-h-[320px] w-full items-center justify-center rounded-2xl border border-dark-3 bg-dark-2/40 p-8">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div className="rounded-full bg-dark-3 p-4">
+          {emptyStateDetails.icon}
+        </div>
+        <h2 className="text-2xl font-bold text-white">
+          {emptyStateDetails.title}
+        </h2>
+        <p className="text-sm text-sky-2">{emptyStateDetails.description}</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-      {type === 'ended' && (doneMeeting.length!==0 ? doneMeeting.map((meeting)=> (
-        <MeetingCard
-        key={meeting.meeting_id}
-        icon={"/icons/previous.svg"}
-        onClickDelete={() => deletePrevious( user?.id || '', meeting.meeting_id)}
-        title={meeting.meeting.title}
-        date={meeting.meeting.end_time || ""}
-        isPreviousMeeting={type === "ended"}
-        link={`${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${
-                meeting.meeting_id
-              }`
-        }
-        buttonIcon1={undefined}
-        buttonText="Start"
-        handleClick={ () => router.push(`/meeting/${meeting.meeting_id}`)}
-        ownerImg={meeting.meeting.creator.image}
-        owner={meeting.meeting.creator.first_name}
-      />
-      )): (
-        <h1 className="text-2xl font-bold text-white">{noCallsMessage}</h1>
-      ))}
+      {type === "ended" &&
+        (doneMeeting.length !== 0 ? (
+          doneMeeting.map((meeting) => (
+            <MeetingCard
+              key={meeting.meeting_id}
+              icon={"/icons/previous.svg"}
+              onClickDelete={() =>
+                deletePrevious(user?.id || "", meeting.meeting_id)
+              }
+              title={meeting.meeting.title}
+              date={meeting.meeting.end_time || ""}
+              isPreviousMeeting={type === "ended"}
+              link={`${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${meeting.meeting_id}`}
+              buttonIcon1={undefined}
+              buttonText="Start"
+              handleClick={() => router.push(`/meeting/${meeting.meeting_id}`)}
+              ownerImg={meeting.meeting.creator.image}
+              owner={meeting.meeting.creator.first_name}
+            />
+          ))
+        ) : (
+          <EmptyState />
+        ))}
 
-      {type === 'upcoming' && (upcomingMeeting.length!==0 ? upcomingMeeting.map((meeting)=> (
-        <MeetingCard
-        key={meeting.upcoming_meeting_id}
-        icon={"/icons/upcoming.svg"}
-        onClickDelete={()=>deleteUpcoming(meeting.upcoming_meeting_id)}
-        title={meeting.meeting_description || ''}
-        date={meeting.meeting_time}
-        link={meeting.meeting_url}
-        buttonIcon1={undefined}
-        buttonText="Start"
-        handleClick={ () => router.push(`${meeting.meeting_url}`)}
-        ownerImg={meeting.account.image}
-        owner={meeting.account.first_name}
-      />
-      )):(
-        <h1 className="text-2xl font-bold text-white">{noCallsMessage}</h1>
-      ))}
+      {type === "upcoming" &&
+        (upcomingMeeting.length !== 0 ? (
+          upcomingMeeting.map((meeting) => (
+            <MeetingCard
+              key={meeting.upcoming_meeting_id}
+              icon={"/icons/upcoming.svg"}
+              onClickDelete={() => deleteUpcoming(meeting.upcoming_meeting_id)}
+              title={meeting.meeting_description || ""}
+              date={meeting.meeting_time}
+              link={meeting.meeting_url}
+              buttonIcon1={undefined}
+              buttonText="Start"
+              handleClick={() => router.push(`${meeting.meeting_url}`)}
+              ownerImg={meeting.account.image}
+              owner={meeting.account.first_name}
+            />
+          ))
+        ) : (
+          <EmptyState />
+        ))}
 
-
-      {type === 'recordings' && (recordingsData.length!==0 ? recordingsData.map((meeting)=> (
-        <MeetingCard
-        key={meeting.meeting_id}
-        icon={"/icons/recordings.svg"}
-        onClickDelete={() => deleteRecordings(meeting.filename)}
-        title={meeting.meeting.title || ''}
-        date={meeting.meeting.end_time || ''}
-        link={meeting.recording_url}
-        buttonIcon1="/icons/play.svg"
-        buttonText="Play"
-        handleClick={ () => router.push(`${meeting.recording_url}`)}
-        ownerImg={meeting.account.image}
-        owner={meeting.account.first_name}
-      />
-      )):(
-        <h1 className="text-2xl font-bold text-white">{noCallsMessage}</h1>
-      ))}
+      {type === "recordings" &&
+        (recordingsData.length !== 0 ? (
+          recordingsData.map((meeting) => (
+            <MeetingCard
+              key={meeting.meeting_id}
+              icon={"/icons/recordings.svg"}
+              onClickDelete={() => deleteRecordings(meeting.filename)}
+              title={meeting.meeting.title || ""}
+              date={meeting.meeting.end_time || ""}
+              link={meeting.recording_url}
+              buttonIcon1="/icons/play.svg"
+              buttonText="Play"
+              handleClick={() => router.push(`${meeting.recording_url}`)}
+              ownerImg={meeting.account.image}
+              owner={meeting.account.first_name}
+            />
+          ))
+        ) : (
+          <EmptyState />
+        ))}
     </div>
   );
 };
